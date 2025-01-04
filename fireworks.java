@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class fireworks {
+  private static final String OS = System.getProperty("os.name").toLowerCase();
+
   public static void main(String[] args) {
     // Show help if requested
     if (args.length > 0 && args[0].equals("--help")) {
@@ -63,8 +65,7 @@ public class fireworks {
           }
           textFrames.add(content.toString());
         } catch (IOException e) {
-          System.err.println("Error reading file: " + filePath);
-          e.printStackTrace();
+          throw new UncheckedIOException("Error reading file: " + filePath, e);
         }
         frameIndex++;
       } else {
@@ -78,7 +79,7 @@ public class fireworks {
   private static void playAnimation(List<String> textFrames, int loops) throws InterruptedException {
     int loopCount = 0;
 
-    while (loopCount < loops || loops == -1) {
+    while (loops == -1 || loopCount < loops) {
       for (String frame : textFrames) {
         clearConsole();
         System.out.print(frame + System.lineSeparator());
@@ -90,14 +91,14 @@ public class fireworks {
 
   private static void clearConsole() {
     try {
-      if (System.getProperty("os.name").contains("Windows")) {
+      if (OS.contains("win")) {
         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
       } else {
         System.out.print("\033[H\033[2J");
         System.out.flush();
       }
     } catch (IOException | InterruptedException ex) {
-      System.err.println("Error clearing console");
+      throw new RuntimeException("Error clearing console", ex);
     }
   }
 }
