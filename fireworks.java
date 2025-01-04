@@ -8,28 +8,26 @@ public class fireworks {
 
   public static void main(String[] args) {
     // Show help if requested
-    if (args.length > 0 && args[0].equals("--help")) {
+    if (args.length > 0 && "--help".equals(args[0])) {
       showHelp();
-      System.exit(0);
+      return;
     }
 
-    // Use default values
+    // Use default values if no arguments are provided
     String folderName = args.length > 0 ? args[0] : "fireworks";
     int loops = args.length > 1 ? Integer.parseInt(args[1]) : 20;
 
     // Resolve folder path relative to package location
     Path folderPath = Paths.get(folderName);
-
     if (!Files.exists(folderPath)) {
       System.out.println(folderName + " could not be found");
-      System.exit(0);
+      return;
     }
 
     List<String> textFrames = loadTextFrames(folderPath);
-
     if (textFrames.isEmpty()) {
       System.out.println(folderName + " did not have text art files");
-      System.exit(0);
+      return;
     }
 
     try {
@@ -41,12 +39,10 @@ public class fireworks {
   }
 
   private static void showHelp() {
-    System.out.println();
-    System.out.println("Play text art animations in the terminal\n");
+    System.out.println("\nPlay text art animations in the terminal\n");
     System.out.println("Usage: java TextArtAnimator [folder] [loops]");
     System.out.println("\t[folder]\tFolder containing text art frames (default: fireworks)");
-    System.out.println("\t[loops]\t\tNumber of times to loop the animation or use -1 to loop until the user terminates the program (default: 20)");
-    System.out.println();
+    System.out.println("\t[loops]\t\tNumber of times to loop the animation or use -1 to loop until the user terminates the program (default: 20)\n");
   }
 
   private static List<String> loadTextFrames(Path folderPath) {
@@ -55,22 +51,19 @@ public class fireworks {
 
     while (true) {
       Path filePath = folderPath.resolve(frameIndex + ".txt");
+      if (!Files.exists(filePath)) break;
 
-      if (Files.exists(filePath)) {
-        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
-          StringBuilder content = new StringBuilder();
-          String line;
-          while ((line = reader.readLine()) != null) {
-            content.append(line).append(System.lineSeparator());
-          }
-          textFrames.add(content.toString());
-        } catch (IOException e) {
-          throw new UncheckedIOException("Error reading file: " + filePath, e);
+      try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+        StringBuilder content = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          content.append(line).append(System.lineSeparator());
         }
-        frameIndex++;
-      } else {
-        break;
+        textFrames.add(content.toString());
+      } catch (IOException e) {
+        throw new UncheckedIOException("Error reading file: " + filePath, e);
       }
+      frameIndex++;
     }
 
     return textFrames;
