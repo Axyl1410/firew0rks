@@ -16,7 +16,7 @@ first you need to compile with ```javac``` (Java Compiler)
 ```bash
 javac fireworks.java
 ```
-and then
+syntax
 ```bash
 java fireworks [folder] [loops]
 ```
